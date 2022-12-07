@@ -132,8 +132,11 @@ def viesiejiPirkimai():
 def contactScraper():
     kbrInput = input(Fore.RESET + "Iveskite tinklapio URL \n")
     ref = 'http://'
+    ref1 = 'https://'
     if ref not in kbrInput:
         kbrInput = ''.join((ref,kbrInput))
+    elif ref1 not in kbrInput:
+        kbrInput = ''.join((ref1,kbrInput))
     try:
         req = requests.get(kbrInput)
     except:
@@ -156,13 +159,6 @@ def contactScraper():
             tel = (" Nerastas tel numeris")
 
     return mail, tel 
-    #if len(mail) == 0:
-    #   errMsg = Fore.RED + "Nerastas el pastas"
-    #elif len(tel) == 0:
-    #    print(errMsg + Fore.RED + " Nerastas tel numeris")
-    #    menu()
-    #else:
-    #    return mail, tel
 #=================================ISGAUTU JSON DUOMENU I CSV TIPO FAILA IRASYMAS
 def json_csv(data):
     new_dict = []
