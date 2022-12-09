@@ -50,7 +50,7 @@ def tycinisBankrotas():
 def viesiejiPirkimai():
     file_name = 'vpt.json'
     if os.path.isfile(file_name) == False:
-        print(Fore.RESET + "Kraunasi duomenys")
+        print(Fore.MAGENTA + "Kraunasi duomenys")
         start = time.process_time()
         response = urlopen('https://get.data.gov.lt/datasets/gov/vpt/new/Atn3/:format/json')
         json_data = json.loads(response.read())
@@ -62,7 +62,7 @@ def viesiejiPirkimai():
             with open(file_name, "w") as file:
                 json.dump(json_data, file)
             file.close()
-            print(Fore.GREEN + "Failas buvo sekmingai sukurtas \n")
+            print(Fore.LIGHTGREEN_EX + "Failas buvo sekmingai sukurtas \n")
         elif dwnInput == 'n':
             pass
         else:
@@ -133,31 +133,33 @@ def contactScraper():
     kbrInput = input(Fore.RESET + "Iveskite tinklapio URL \n")
     ref = 'http://'
     ref1 = 'https://'
-    try:
-        req = requests.get(''.join((ref,kbrInput)))
-    except:
+    if ref not in kbrInput or ref1 not in kbrInput:
         try:
-            req = requests.get(''.join((ref1,kbrInput)))
+            req = requests.get(''.join((ref,kbrInput)))
         except:
-            print(Fore.RED + "Neimanoma prisijungti \n")
-            return ''
+            try:
+                req = requests.get(''.join((ref1,kbrInput)))
+            except:
+                print(Fore.RED + "Neimanoma prisijungti \n")
+                return ''
     data = req.text
-    mail = []
-    tel = []
+    mail = ""
+    tel = ""
     soup = BeautifulSoup(data, "html.parser")
 
     for i in soup.find_all(href=re.compile("mailto")):
-        if "@" in str(i.string):
-            mail = (i.string)
+        if str(i.string) and str(i.string).split(): 
+            if "@" in str(i.string):
+                mail = ''.join(str(i.string))
         else:
-            mail = ("Nerastas el pastas")
+            mail = "Nerastas el pastas"
     for i in soup.find_all(href=re.compile("tel")):
-        if "+" in str(i.string):
-            tel = (i.string)
+        if str(i.string) and str(i.string).split():
+            if "+" in str(i.string) or (str(i.string).replace(" ", "")).isdigit():
+                tel = ''.join(str(i.string))
         else:
-            tel = (" Nerastas tel numeris")
-
-    return mail, tel 
+            tel = " Nerastas tel numeris"
+    return (mail, tel) 
 #=================================ISGAUTU JSON DUOMENU I CSV TIPO FAILA IRASYMAS
 def json_csv(data):
     new_dict = []
@@ -175,7 +177,7 @@ def json_csv(data):
                 file.write("%s, %s\n" % (key, new_dict[key]))
             file.write("\n")
         file.close()
-        print(Fore.GREEN + "Duomenys sekmingai isaugoti \n")
+        print(Fore.LIGHTGREEN_EX + "Duomenys sekmingai isaugoti \n")
         menu()
     if os.path.isfile(file_name) == True and os.stat(file_name).st_size != 0:
         kbrInput = input("Failas egzistuoja ir nera tuscias, ar norite sujungti sugeneruotus duomenis? t/n ").lower()
@@ -187,7 +189,7 @@ def json_csv(data):
                     file.write("%s, %s\n" % (key, new_dict[key]))
                 file.write("\n")
             file.close()
-            print(Fore.GREEN + "Duomenys sekmingai isaugoti \n")
+            print(Fore.LIGHTGREEN_EX + "Duomenys sekmingai isaugoti \n")
             menu()
         if kbrInput == 'n':
             print(Fore.GREEN + "Baigiamas darbas, griztama i meniu")
@@ -211,7 +213,7 @@ def textFile(contactList):
             file.write(' '.join(contactList))
             file.close()
     elif os.path.isfile(file_name) == True and os.stat(file_name).st_size != 0:
-        kbrInput = input("Failas egzistuoja, bet nera tuscias ar norite papildyti? t/n \n").lower()
+        kbrInput = input(Fore.LIGHTMAGENTA_EX + "Failas egzistuoja, bet nera tuscias ar norite papildyti? t/n \n").lower()
         if kbrInput == 't':
             with open(file_name, "a") as file:
                 #for i in contactList:
@@ -220,8 +222,8 @@ def textFile(contactList):
     else:
         print(Fore.RED + "Nepavyko sukurti failo\n")
         menu()
-    print(Fore.GREEN + "Sekmingai sukurtas failas \n", file_name)
-    print("Griztama i meniu\n")
+    print(Fore.LIGHTGREEN_EX + "Sekmingai sukurtas failas \n", file_name)
+    print(Fore.BLUE + "Griztama i meniu\n")
     time.sleep(1.0)
     menu()
 
@@ -242,25 +244,42 @@ def menu():
         if len(bank) == 0:
             print(Fore.RED + "Grazinama tuscia eilute, informacijos nepavyko surasti, bandykite dar karta \n")
             bank = tycinisBankrotas()
-        print("Gauti duomenys \n")
+        print(Fore.LIGHTGREEN_EX + "Gauti duomenys")
         print(bank)
         json_csv(bank)
     elif kbrInput == '2':
         vp = viesiejiPirkimai()
         if len(vp) == 0:
-            print(Fore.RED + "Informacija nebuvo rasta, bandykite dar karta \n")
+            print(Fore.RED + "Informacija nebuvo rasta, bandykite dar karta")
             vp = tycinisBankrotas()
-        print("Gauti duomenys \n")
+        print(Fore.LIGHTGREEN_EX + "Gauti duomenys \n")
         print(vp)
         json_csv(vp)
     elif kbrInput == '3':
         web = contactScraper()
-        if len(web[0]) == 0 and len(web[1]) == 0:
-            print(Fore.RED + "Nepavyko rasti duomenu \n")
-            web = contactScraper()
-        print("Gauti duomenys \n")
-        print(web)
-        textFile(web)
+        if len(web) != 0:
+            if  not (web[0] and web[0].strip()) and not (web[1] and web[1].strip()):# == "" and web[1] == "":
+                print(Fore.RED + "Nepavyko rasti duomenu \n")
+                web = contactScraper()
+            elif (web[0] and web[0].strip()) and (web[1] and web[1].strip()):
+                print(Fore.LIGHTGREEN_EX + "Gauti duomenys")
+                print(Fore.RESET, web)
+                textFile(web)
+            else:  
+                if web[0] and web[0].strip():
+                    print(Fore.LIGHTGREEN_EX + "Gautas el. pastas")
+                    print(Fore.RESET, web[0])
+                    textFile(web[0])
+                elif web[1] and web[1].strip():
+                    print(Fore.LIGHTGREEN_EX + "Gautas numeris")
+                    print(Fore.RESET, web[1])
+                    textFile(web[1])
+                else:
+                    print(Fore.RED + "Nepavyko rasti duomenu, badykite dar karta\n")
+                    web = contactScraper()
+        else:
+            print(Fore.RED + "Ivyko klaida \n")
+            menu()
     elif kbrInput == '0':
         sys.exit()
     else:
