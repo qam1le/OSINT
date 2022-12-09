@@ -133,15 +133,14 @@ def contactScraper():
     kbrInput = input(Fore.RESET + "Iveskite tinklapio URL \n")
     ref = 'http://'
     ref1 = 'https://'
-    if ref not in kbrInput:
-        kbrInput = ''.join((ref,kbrInput))
-    elif ref1 not in kbrInput:
-        kbrInput = ''.join((ref1,kbrInput))
     try:
-        req = requests.get(kbrInput)
+        req = requests.get(''.join((ref,kbrInput)))
     except:
-        print("Neimanoma prisijungti \n")
-        return ''
+        try:
+            req = requests.get(''.join((ref1,kbrInput)))
+        except:
+            print(Fore.RED + "Neimanoma prisijungti \n")
+            return ''
     data = req.text
     mail = []
     tel = []
@@ -256,8 +255,8 @@ def menu():
         json_csv(vp)
     elif kbrInput == '3':
         web = contactScraper()
-        if len(web) == 0:
-            print(Fore.RED + "Nepavyko uzmegzti rysio, bandykite dar karta \n")
+        if len(web[0]) == 0 and len(web[1]) == 0:
+            print(Fore.RED + "Nepavyko rasti duomenu \n")
             web = contactScraper()
         print("Gauti duomenys \n")
         print(web)
