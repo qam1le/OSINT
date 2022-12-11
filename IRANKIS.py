@@ -32,13 +32,13 @@ def tycinisBankrotas():
                         "imones_pabaiga" : j['isregistravimo_data']
                     }
                     data['imones_bankroto_duomenys'].append(data_dict)
+                    if data["imones_bankroto_duomenys"]:
+                        return data
+                    else:
+                        return ''
                 else:
                     print(Fore.RED + "Imones nera sarase, griztama i meniu \n")
                     menu()
-        if not data["imones_bankroto_duomenys"]:
-            return ''
-        else:
-            return data
     except:
         print(Fore.RED + "Klaida")
         menu()
@@ -85,7 +85,8 @@ def viesiejiPirkimai():
             print(Fore.RED + "Netinkama ivestis, bandykite dar karta \n")
             viesiejiPirkimai()
     else:
-        pass
+        print(Fore.RED + "Ivyko klaida, griztama i meniu \n")
+        menu()
     search_item = ''
     data = {
             "imones_vp_duomenys" : []
@@ -101,11 +102,11 @@ def viesiejiPirkimai():
     else:
         print(Fore.RED + "Netinkama ivestis, bandykite dar karta")
         viesiejiPirkimai()
-
     try:
         for i in json_data:
             for j in json_data[i]:
                 if org in str(j[search_item]).upper():
+                    print(str(j[search_item]).upper())
                     data_dict = {
                         "dok_irasymo_data" :  j['insert_date'],
                         "imones_kodas" : j['legal_entity_code_1'],
@@ -115,13 +116,11 @@ def viesiejiPirkimai():
                         "imones_viesieji_url" : j['url_buyer_1']
                     }
                     data['imones_vp_duomenys'].append(data_dict)
-                else:
-                    print(Fore.RED + "Nera duomenu apie imone, griztama i meniu \n")
-                    menu()
-        if not data["imones_vp_duomenys"]:
-            return ''
-        else:
-            return data
+                    print(data)
+                    if data['imones_vp_duomenys']:
+                        return data
+                    else:
+                        return ''
     except:
         print(Fore.RED + "Klaida, griztama i meniu")
         time.sleep(1.0)
@@ -241,26 +240,34 @@ def menu():
     print("\n")
     if kbrInput == '1':
         bank = tycinisBankrotas()
-        if len(bank) == 0:
+        if not bank:
             print(Fore.RED + "Grazinama tuscia eilute, informacijos nepavyko surasti, bandykite dar karta \n")
-            bank = tycinisBankrotas()
-        print(Fore.LIGHTGREEN_EX + "Gauti duomenys")
-        print(bank)
-        json_csv(bank)
+            menu()
+        elif bank:
+            print(Fore.LIGHTGREEN_EX + "Gauti duomenys")
+            print(bank)
+            json_csv(bank)
+        else:
+            print(Fore.RED + "Ivyko nenumatyta klaida, griztama i meniu")
+            menu()
     elif kbrInput == '2':
         vp = viesiejiPirkimai()
-        if len(vp) == 0:
-            print(Fore.RED + "Informacija nebuvo rasta, bandykite dar karta")
-            vp = tycinisBankrotas()
-        print(Fore.LIGHTGREEN_EX + "Gauti duomenys \n")
-        print(vp)
-        json_csv(vp)
+        if not vp:
+            print(Fore.RED + "Informacijos rasti nepavyko, bandykite dar karta")
+            menu()
+        elif vp:
+            print(Fore.LIGHTGREEN_EX + "Gauti duomenys \n")
+            print(vp)
+            json_csv(vp)
+        else:
+            print(Fore.RED + "Ivyko klaida")
+            menu()
     elif kbrInput == '3':
         web = contactScraper()
         if len(web) != 0:
             if  not (web[0] and web[0].strip()) and not (web[1] and web[1].strip()):# == "" and web[1] == "":
                 print(Fore.RED + "Nepavyko rasti duomenu \n")
-                web = contactScraper()
+                menu()
             elif (web[0] and web[0].strip()) and (web[1] and web[1].strip()):
                 print(Fore.LIGHTGREEN_EX + "Gauti duomenys")
                 print(Fore.RESET, web)
@@ -276,7 +283,7 @@ def menu():
                     textFile(web[1])
                 else:
                     print(Fore.RED + "Nepavyko rasti duomenu, badykite dar karta\n")
-                    web = contactScraper()
+                    menu()
         else:
             print(Fore.RED + "Ivyko klaida \n")
             menu()
