@@ -15,7 +15,8 @@ colorama.init(True)
 #================================FUNKCIJA SKIRTA ISGAUTI DUOMENIS IS API SU TYCINIU BANKROTU DUOMENIMIS
 #================================IR GRAZINTI REIKIAMUS/PASIRINKTUS
 def tycinisBankrotas():
-    org = input(Fore.RESET + "Irasykite imones pavadinima \n").upper()
+    org = input("Irasykite imones pavadinima \n").upper()
+    print(Fore.RESET)
     response = urlopen('https://get.data.gov.lt/datasets/gov/avnt/tyciniai_bankrotai/TycinisBankrotas/:format/json')
     json_data = json.loads(response.read())
     data = {
@@ -50,14 +51,15 @@ def tycinisBankrotas():
 #================================IR GRAZINTI REIKIAMUS/PASIRINKTUS
 # funkcija veikia salyginai letai del didesnio json failo dydzio
 def viesiejiPirkimai():
+    print(Fore.RESET)
     file_name = 'vpt.json'
     if os.path.isfile(file_name) == False:
         print(Fore.MAGENTA + "Kraunasi duomenys")
         start = time.process_time()
         response = urlopen('https://get.data.gov.lt/datasets/gov/vpt/new/Atn3/:format/json')
         json_data = json.loads(response.read())
-        print("Krovimo laikas: " + str(time.process_time() - start) + "\n") #iprastai uztrunka 30sek
-        dwnInput = input(Fore.BLUE + "Ar noretumet parsisiusti faila, greitesnei prieigai? t/n \n").lower()
+        print(Fore.LIGHTMAGENTA_EX + "Krovimo laikas: " + str(time.process_time() - start) + "\n") #iprastai uztrunka 30sek
+        dwnInput = input(Fore.LIGHTBLUE_EX + "Ar noretumet parsisiusti faila, greitesnei prieigai? t/n \n").lower()
         if dwnInput == 't':
             response = requests.get('https://get.data.gov.lt/datasets/gov/vpt/new/Atn3/:format/json')
             json_data = response.json()
@@ -65,6 +67,7 @@ def viesiejiPirkimai():
                 json.dump(json_data, file)
             file.close()
             print(Fore.LIGHTGREEN_EX + "Failas buvo sekmingai sukurtas \n")
+            print(Fore.GREEN + "Ji galite rasti \n", os.getcwd())
         elif dwnInput == 'n':
             pass
         else:
@@ -72,14 +75,15 @@ def viesiejiPirkimai():
             viesiejiPirkimai()
 
     elif os.path.isfile(file_name) == True:
-        kbrInput = input(Fore.BLUE + "Ar norite atnaujinti " + file_name + " ? t/n \n").lower() 
+        kbrInput = input(Fore.MAGENTA + "Ar norite atnaujinti " + file_name + " ? t/n \n").lower() 
         if kbrInput == 't':
             response = requests.get('https://get.data.gov.lt/datasets/gov/vpt/new/Atn3/:format/json')
             json_data = response.json()
             with open(file_name, "w") as file:
                 json.dump(json_data, file)
             file.close()
-            print(Fore.GREEN + "Failas buvo sekmingai atnaujintas \n")
+            print(Fore.LIGHTGREEN_EX + "Failas buvo sekmingai atnaujintas \n")
+            print(Fore.GREEN + "Ji galite rasti \n", os.getcwd())
         elif kbrInput == 'n':
             with open(file_name, 'r') as file:
                 json_data = json.load(file)
@@ -94,7 +98,8 @@ def viesiejiPirkimai():
             "imones_vp_duomenys" : []
         }
     org = ""
-    kbrInput = input(Fore.RESET + "Imones ieskojimas pagal: 1 - Koda, 2 - Pavadinima ")
+    kbrInput = input(Fore.BLUE + "Imones ieskojimas pagal: 1 - Koda, 2 - Pavadinima ")
+    print(Fore.RESET)
     if kbrInput == '1':
         org = str(input("Irasykite imones koda \n"))
         search_item = 'legal_entity_code_1'
@@ -131,7 +136,8 @@ def viesiejiPirkimai():
 #funkcija yra lucky guess, dazniausiai html failuose el pasta galima rasti po mailto eilutes, bet ne visada. 
 #ir veikia tik duotame url'e, nevaiksto po direktorijas, del ko neverta webscrapper pavadinimo
 def contactScraper():
-    kbrInput = input(Fore.RESET + "Iveskite tinklapio URL \n")
+    kbrInput = input(Fore.BLUE + "Iveskite tinklapio URL \n")
+    print(Fore.RESET)
     ref = 'http://'
     ref1 = 'https://'
     if ref not in kbrInput or ref1 not in kbrInput:
@@ -163,13 +169,14 @@ def contactScraper():
     return (mail, tel) 
 #=================================ISGAUTU JSON DUOMENU I CSV TIPO FAILA IRASYMAS
 def json_csv(data):
+    print(Fore.RESET)
     new_dict = []
     dict_name = list(data)[0]
     imone = ''
     for i in data[dict_name]:
         new_dict = i
         imone = i['imones_pavadinimas']
-    fn = input(Fore.RESET + "Iveskite failo, kuriame norite issaugoti informacija, pavadinima \n")
+    fn = input(Fore.BLUE + "Iveskite failo, kuriame norite issaugoti informacija, pavadinima \n")
     file_name = (''.join(fn)) + '.csv'
     if os.path.isfile(file_name) == False:
         with open(file_name, 'w', encoding='utf-8') as file:
@@ -178,10 +185,11 @@ def json_csv(data):
                 file.write("%s, %s\n" % (key, new_dict[key]))
             file.write("\n")
         file.close()
-        print(Fore.LIGHTGREEN_EX + "Duomenys sekmingai isaugoti \n")
+        print(Fore.LIGHTGREEN_EX + "Duomenys sekmingai isaugoti, juos rasite: \n", os.getcwd())
         menu()
     if os.path.isfile(file_name) == True and os.stat(file_name).st_size != 0:
-        kbrInput = input("Failas egzistuoja ir nera tuscias, ar norite sujungti sugeneruotus duomenis? t/n ").lower()
+        kbrInput = input(Fore.LIGHTRED_EX + "Failas egzistuoja ir nera tuscias, ar norite sujungti sugeneruotus duomenis? t/n ").lower()
+        print(Fore.RESET)
         if kbrInput == 't':
             with open(file_name, 'a', encoding='utf-8') as file:
                 file.write("NAUJI DUOMENYS \n")
@@ -190,7 +198,7 @@ def json_csv(data):
                     file.write("%s, %s\n" % (key, new_dict[key]))
                 file.write("\n")
             file.close()
-            print(Fore.LIGHTGREEN_EX + "Duomenys sekmingai isaugoti \n")
+            print(Fore.LIGHTGREEN_EX + "Duomenys sekmingai isaugoti, juos rasite \n", os.getcwd())
             menu()
         if kbrInput == 'n':
             print(Fore.GREEN + "Baigiamas darbas, griztama i meniu")
@@ -207,24 +215,24 @@ def json_csv(data):
 
 #=================================ISGAUTU DUOMENU I TXT TIPO FAILUS IRASYMAS
 def textFile(contactList):
-    fn = input(Fore.RESET + "Iveskite failo pavadinima \n")
-    file_name = (' '.join(fn)) + ".txt"
+    fn = input(Fore.BLUE + "Iveskite failo pavadinima \n")
+    file_name = ((''.join(fn)) + ".txt").replace(" ", "_")
     if os.path.isfile(file_name) == False:
         with open(file_name, "w") as file:
-            file.write(' '.join(contactList))
+            file.write(''.join(contactList))
             file.close()
     elif os.path.isfile(file_name) == True and os.stat(file_name).st_size != 0:
         kbrInput = input(Fore.LIGHTMAGENTA_EX + "Failas egzistuoja, bet nera tuscias ar norite papildyti? t/n \n").lower()
         if kbrInput == 't':
             with open(file_name, "a") as file:
                 #for i in contactList:
-                file.write(' '.join(contactList))
+                file.write(''.join(contactList))
                 file.close()
     else:
         print(Fore.RED + "Nepavyko sukurti failo\n")
         menu()
-    print(Fore.LIGHTGREEN_EX + "Sekmingai sukurtas failas \n", file_name)
-    print(Fore.BLUE + "Griztama i meniu\n")
+    print(Fore.LIGHTGREEN_EX + "Sekmingai sukurtas failas: ", file_name , Fore.GREEN + "direktorijoje \n", os.getcwd())
+    print(Fore.GREEN + "Griztama i meniu\n")
     time.sleep(1.0)
     menu()
 
