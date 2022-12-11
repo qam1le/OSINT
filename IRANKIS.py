@@ -6,10 +6,12 @@ from bs4 import BeautifulSoup
 import json
 import os
 import sys
+import colorama
 from colorama import Fore
 import time
 import requests
 
+colorama.init(True)
 #================================FUNKCIJA SKIRTA ISGAUTI DUOMENIS IS API SU TYCINIU BANKROTU DUOMENIMIS
 #================================IR GRAZINTI REIKIAMUS/PASIRINKTUS
 def tycinisBankrotas():
